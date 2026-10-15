@@ -4,6 +4,23 @@
 
 [English README](README.md) · [Встановлення](docs/INSTALL_UA.md) · [Обладнання](docs/HARDWARE.md) · [Налаштування](docs/CONFIGURATION.md)
 
+## Скриншоти
+
+<a href="screenshots/Overview.png"><img src="screenshots/Overview.png" alt="Головний екран: JBD BMS Home Assistant dashboard" width="680"></a>
+
+| Редактор профілів | Читання EEPROM |
+|:--:|:--:|
+| <a href="screenshots/Profiles.png"><img src="screenshots/Profiles.png" alt="Профілі" width="345"></a> | <a href="screenshots/EEPROM.png"><img src="screenshots/EEPROM.png" alt="EEPROM" width="345"></a> |
+
+<details>
+<summary>Інші екрани: налаштування, захист, графіки</summary>
+
+| Налаштування | Захист | Графіки |
+|:--:|:--:|:--:|
+| <a href="screenshots/Settings.png"><img src="screenshots/Settings.png" alt="Налаштування" width="225"></a> | <a href="screenshots/Protection.png"><img src="screenshots/Protection.png" alt="Захист" width="225"></a> | <a href="screenshots/Charts.png"><img src="screenshots/Charts.png" alt="Графіки" width="225"></a> |
+
+</details>
+
 ## Можливості
 
 - Напруга батареї та груп, струм, потужність, SOC, ємність, температура й статуси захистів.
@@ -18,6 +35,14 @@
 Перевірено автором на **JBD DP04S007-L4S 60A (4S, PCB V2.1)** та **ESP32-C3 Zero**, включно із записом APPLY та зчитуванням назад. Сумісність з іншими версіями JBD не підтверджена. **Бета-версія**; межі тестування наведені в [TESTING.md](docs/TESTING.md).
 
 У тестовій конфігурації ESP32 живиться від акумуляторних клем **B+/B− через DC-DC 5 В**, додатково використовується зовнішній активний балансир **ZNLD**. Деталі — в [HARDWARE.md](docs/HARDWARE.md).
+
+## Апаратна реалізація
+
+Тестова **LiFePO₄ збірка 4S4P** використовує JBD BMS, ESP32-C3 Zero із живленням **5 В через DC-DC понижувач від B+ / B− акумулятора** та незалежний активний балансир ZNLD. Компоненти встановлені в корпусі, виготовленому на 3D-принтері. Схема підключення описана в [Hardware and wiring](docs/HARDWARE.md).
+
+| Акумулятор у зборі | BMS, контролер і з'єднання |
+|:--:|:--:|
+| <a href="screenshots/Hardware-Side-New.jpg"><img src="screenshots/Hardware-Side-New.jpg" alt="Акумуляторна збірка LiFePO4 у корпусі під кутом" width="320"></a> | <a href="screenshots/Hardware-Front.jpg"><img src="screenshots/Hardware-Front.jpg" alt="Електроніка JBD BMS та ESP32 і підключення" width="320"></a> |
 
 ## Встановлення
 
