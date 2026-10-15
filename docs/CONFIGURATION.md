@@ -1,46 +1,37 @@
-# Configuration, DRAFT, profiles and EEPROM
+# Configuration, profiles and EEPROM
 
-## Ten thresholds / registers
+## EEPROM registers
 
-| Register | Function | Unit | Project example (V) |
+| Register | Parameter | Raw unit | Project preset |
 |---|---|---|---:|
-| `0x20` | Pack overvoltage (OVP) | 0.01 V/raw | 14.60 |
-| `0x21` | Pack OVP recovery | 0.01 V/raw | 14.00 |
-| `0x22` | Pack undervoltage (UVP) | 0.01 V/raw | 10.50 |
-| `0x23` | Pack UVP recovery | 0.01 V/raw | 11.50 |
-| `0x24` | Cell overvoltage | 0.001 V/raw | 3.650 |
-| `0x25` | Cell OVP recovery | 0.001 V/raw | 3.500 |
-| `0x26` | Cell undervoltage | 0.001 V/raw | 2.550 |
-| `0x27` | Cell UVP recovery | 0.001 V/raw | 3.000 |
-| `0x2A` | Passive balance start | 0.001 V/raw | 3.300 |
-| `0x2B` | Passive balance delta | 0.001 V/raw | 0.015 |
+| `0x20` | Pack overvoltage | 0.01 V | 14.60 V |
+| `0x21` | Pack OVP recovery | 0.01 V | 14.00 V |
+| `0x22` | Pack undervoltage | 0.01 V | 10.50 V |
+| `0x23` | Pack UVP recovery | 0.01 V | 11.50 V |
+| `0x24` | Cell overvoltage | 0.001 V | 3.650 V |
+| `0x25` | Cell OVP recovery | 0.001 V | 3.500 V |
+| `0x26` | Cell undervoltage | 0.001 V | 2.550 V |
+| `0x27` | Cell UVP recovery | 0.001 V | 3.000 V |
+| `0x2A` | Passive balance start | 0.001 V | 3.300 V |
+| `0x2B` | Passive balance voltage delta | 0.001 V | 0.015 V |
 
-**Example only:** These are project preset constants, not factory defaults or safety recommendations for other BMS, cells, charging profiles or UPSes. The owner later read back a **Pack UVP of 10.20 V** on this actual BMS, which may **not** match the `10.50 V` project preset. The EEPROM readout is the source of actual stored values.
+These are **project presets**, not manufacturer defaults or universal LiFePO₄ recommendations. Actual EEPROM values can differ: **always read the BMS** to determine what it has stored. Preset constants are defined in the firmware's `substitutions:` block.
 
-The single source for *project preset* parameters is the `substitutions:` section near the top of the firmware file. Changing it requires ESPHome build and flashing; it does not directly change BMS EEPROM. Existing saved user/DRAFT profiles in ESP32 flash may persist after a firmware update.
+## Parameter layers
 
-## Four parameter layers
+- **Project preset:** read-only reference values built into the firmware.
+- **Custom profile:** user-defined values saved in ESP32 flash after an explicit save.
+- **DRAFT:** working values prepared for comparison and optional EEPROM programming.
+- **EEPROM:** parameters stored by the JBD BMS, retrieved by the independent reader.
 
-- **Project preset**: fixed firmware example defaults.
-- **Custom profile**: editable values saved in ESP32 preferences only after Save Custom Profile.
-- **DRAFT**: working values used to prepare an eventual EEPROM operation; can be loaded from either profile. Not written to BMS merely by editing.
-- **EEPROM**: independently read BMS configuration registers (ten-register reader). Read after restart to obtain fresh values; comparisons require a successful current-session read.
+Loading profiles into DRAFT does **not** write to the BMS.
 
-## APPLY sequence (owner-tested on this hardware)
+## EEPROM operations
 
-1. Unlock configuration editing.
-2. Enter and validate DRAFT.
-3. Review / ARM (expires after 60 seconds).
-4. Press APPLY while conditions required by the firmware are met.
-5. Transaction obtains ten original values as a diagnostic backup, writes changed registers, issues a commit, opens another factory-mode session, and checks all ten values.
-6. Read all ten EEPROM registers independently afterwards to verify. The on-screen diagnostic backup is not a persisted remote archive.
+**Read All 10 Parameters** opens a read-only factory-mode session, retrieves ten settings and exits without saving. A message of `Read 10/10; exit confirmed; NO WRITE` indicates a successful response and acknowledged exit, not a physical protection-cutoff test.
 
-The operation is deliberately not triggered by profile actions, HA startup, or an EEPROM read button. Power/temperature/current protections of the BMS require independent hardware verification.
+**APPLY** is a separate action requiring the configuration unlock and 60-second ARM gate. It obtains original register values, sends changed parameters, commits, and reads back the settings. Re-read all ten registers independently after programming. The displayed raw backup is diagnostic information, **not** an off-device archival copy.
 
-## EEPROM read status
+Some protocol commit operations may reset historical BMS protection counters. Retrieve and retain those counters separately if event history matters.
 
-`Read 10/10; exit confirmed; NO WRITE` means ten expected register read responses were received and the device acknowledged exit without parameter changes. It is not a verification of actual hardware cutoff behavior. `unknown` indicates a value is not available yet, commonly after ESP32 restart and before reading.
-
-### Error counters
-
-Some JBD protocol commit procedures can clear historical protection counters. Track them separately if event history matters. Reading them uses the **Read Error Counters** button.
+**Recovery thresholds** apply when protection has tripped; exact MOSFET recovery behavior depends on the BMS model and firmware. Do not assume preset thresholds match another battery pack or charger.

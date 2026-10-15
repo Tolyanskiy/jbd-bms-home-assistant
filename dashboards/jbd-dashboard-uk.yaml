@@ -7,10 +7,10 @@ views:
   max_columns: 2
   sections:
   - type: grid
-    title: Акумулятор · 4S4P
+    title: Акумулятор · 4S
     cards:
     - type: markdown
-      content: "**JSK IFR32140-15Ah · 4S4P · 60 А·год**  \nJBD DP04S007L4S60A · ESP32-C3 Zero\n\n{% if is_state('binary_sensor.jbd_bms_online',\
+      content: "**JBD BMS · 4S**  \nJBD DP04S007L4S60A · ESP32-C3 Zero\n\n{% if is_state('binary_sensor.jbd_bms_online',\
         \ 'on') %}\n\U0001F7E2 **BMS на зв'язку**\n{% else %}\n\U0001F534 **BMS не на зв'язку** — показники можуть бути\
         \ застарілі\n{% endif %}"
     - type: grid
@@ -159,8 +159,7 @@ views:
       - entity: sensor.jbd_bms_cell_count
         name: Груп у батареї
     - type: markdown
-      content: '**Примітка.** Зовнішній балансир ZNLD 2 А працює незалежно від JBD. Датчик «Balancing» показує **лише
-        пасивне балансування JBD**, а не активний балансир.'
+      content: '**Примітка.** Показники Balancing відображають пасивне балансування JBD. Зовнішній активний балансир, якщо встановлений, працює незалежно.'
 - title: Графіки
   path: jbd-trends
   icon: mdi:chart-line
@@ -215,8 +214,7 @@ views:
       - entity: sensor.jbd_bms_balancing_cells
         name: Групи в балансуванні
     - type: markdown
-      content: Графік використовує статистику Recorder. Якщо даних поки немає, потрібно дочекатися накопичення статистики.
-        Зовнішній активний балансир ZNLD тут не відображається.
+      content: Графіки використовують статистику Home Assistant Recorder; дані можуть з’явитися не одразу.
   - type: grid
     title: Струм і температура
     cards:
@@ -267,8 +265,7 @@ views:
       - entity: sensor.jbd_bms_temperature
         name: Температура
     - type: markdown
-      content: 'При навантаженні ДБЖ перевіряй струм: номінал JBD — 60 А; повна потужність LPM-PSW-1500VA перевищує можливості
-        цієї збірки.'
+      content: 'Під навантаженням перевіряй струм і номінали BMS, кабелів та з’єднань.'
 - title: Захист
   path: jbd-protection
   icon: mdi:shield-check
@@ -532,9 +529,7 @@ views:
     cards:
     - type: markdown
       content: |-
-        **Приклад узгодження для цієї системи:** LogicPower завершує розряд при **10,5 В**, а поточний поріг JBD Pack UVP становить **10,2 В**; Cell UVP — **2,55 В**. При дисбалансі груп захист комірки може спрацювати раніше. Уставки залежать від акумулятора та ДБЖ, не копіюй їх без перевірки.
-
-        **Верхня межа комірок JSK — 3,65 В.** Налаштування зарядного пристрою перевіряються окремо.
+        **Пороги захисту:** звір фактичні значення EEPROM з характеристиками комірок, зарядного пристрою та навантаження. Окрема група може досягти свого порога раніше за всю батарею.
     - type: entities
       title: Статус операцій
       show_header_toggle: false

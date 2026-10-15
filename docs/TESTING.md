@@ -1,31 +1,24 @@
-# Audit and testing notes
+# Testing and verification
 
-## Checks included in this release
+## Tested on the reference hardware
 
-- YAML parsed for both ESPHome variants (including `!secret`) and both Home Assistant dashboards.
-- The English and Ukrainian dashboards were compared structurally: **same six views, same entity identifiers, same actions**.
-- Original firmware and optional English firmware compared after replacing localized **profile-status string literals**; no commands, GPIO definitions, register constants, or algorithmic control flow were intentionally modified.
-- No literal Wi-Fi/API secrets, personal identifiers, or external component source copies included.
-- All code comments in shipped firmware checked for Ukrainian characters; dashboard language localized separately.
+The maintainer reports successful operation with JBD DP04S007-L4S 60A (4S, PCB V2.1) and ESP32-C3 Zero:
 
-## Hardware tests reported by the owner (not reproduced in this release build)
+- UART telemetry in Home Assistant.
+- Discharge MOSFET control via the dashboard.
+- Independent read and comparison of ten EEPROM configuration registers.
+- EEPROM APPLY and read-back of the changed configuration.
+- Custom-profile editing, persistence and DRAFT loading.
+- Improved UART reliability using WARN logging, 5-second polling and 300 ms receive timeout.
 
-- UART telemetry and discharge MOSFET interface were in use.
-- Independent 10/10 EEPROM read displayed valid returned threshold values.
-- APPLY configuration and read-back were reported working on the owner’s device.
-- Custom profile edit/save and comparison were exercised in Home Assistant.
+## Automated checks
 
-## Still to test before marking stable
+`python tools/static_audit.py` checks YAML parsing, language-variant structure, entity references and common accidental secret inclusion. CI runs this static check on pushes and pull requests when the included GitHub Actions workflow is enabled.
 
-- Actual ESPHome validation and compilation on the current installed version.
-- Fresh install on a second/clean Home Assistant system, including entity-ID mapping.
-- Verification of setup instructions, pinout and electrical levels for each supported BMS board revision.
-- Negative-path handling: timeouts, interrupted UART, interrupted BMS power, interrupted transaction, malformed response.
-- Dedicated bench tests of hardware cutoff/recovery behavior where relevant, rather than assuming readings alone establish it.
+## Not covered by this test scope
 
-**Release classification:** `v0.1.0-beta`, not a universal verified hardware controller.
+- A full ESPHome compile or deployment from a clean machine for every supported version.
+- Compatibility with other JBD models, board revisions or UART voltage levels.
+- Independent validation of protection cutoffs, hardware fault tolerance or interrupted EEPROM transactions.
 
-
-## UART reliability observation
-
-The maintainer reports UART errors stopped after changing logging to WARN, polling to 5s, and RX timeout to 300ms. This is field observation, not a measured error-rate certification; longer-term testing under different charger/load modes is welcome.
+The release is marked **beta**. Contributors can report reproducible compatibility results using the issue template.

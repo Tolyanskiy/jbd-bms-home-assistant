@@ -7,10 +7,10 @@ views:
   max_columns: 2
   sections:
   - type: grid
-    title: Battery · 4S4P
+    title: Battery · 4S
     cards:
     - type: markdown
-      content: "**JSK IFR32140-15Ah · 4S4P · 60 Ah**  \nJBD DP04S007L4S60A · ESP32-C3 Zero\n\n{% if is_state('binary_sensor.jbd_bms_online',\
+      content: "**JBD 4S BMS**  \nJBD DP04S007L4S60A · ESP32-C3 Zero\n\n{% if is_state('binary_sensor.jbd_bms_online',\
         \ 'on') %}\n\U0001F7E2 **BMS Online**\n{% else %}\n\U0001F534 **BMS Offline** — reported values may be stale\n\
         {% endif %}"
     - type: grid
@@ -159,8 +159,7 @@ views:
       - entity: sensor.jbd_bms_cell_count
         name: Series Cell Groups
     - type: markdown
-      content: '**Note.** An external ZNLD 2 A active balancer operates independently of JBD. The Balancing indicator
-        reports **JBD passive balancing only**.'
+      content: '**Note.** JBD Balancing indicators reflect the BMS passive balancing only; any external active balancer is independent.'
 - title: Charts
   path: jbd-trends
   icon: mdi:chart-line
@@ -215,8 +214,7 @@ views:
       - entity: sensor.jbd_bms_balancing_cells
         name: Balancing Groups
     - type: markdown
-      content: Charts use Home Assistant Recorder statistics. If unavailable, allow time for statistics to accumulate.
-        The external active balancer is not shown.
+      content: Charts use Home Assistant Recorder statistics. Data may take time to accumulate.
   - type: grid
     title: Current & Temperature
     cards:
@@ -267,8 +265,7 @@ views:
       - entity: sensor.jbd_bms_temperature
         name: Temperature
     - type: markdown
-      content: Check the battery current under load. The example JBD is rated at 60 A; this sample UPS can demand more
-        than the configured BMS current rating.
+      content: Check current under load against the ratings of the BMS, wiring and connectors.
 - title: Protection
   path: jbd-protection
   icon: mdi:shield-check
@@ -532,9 +529,7 @@ views:
     cards:
     - type: markdown
       content: |-
-        **Example UPS/BMS thresholds on this build:** LogicPower stops discharging at **10.5 V**, the current JBD Pack UVP is **10.2 V**, and Cell UVP is **2.55 V**. An imbalanced group can reach cell cutoff before the pack threshold. Do not reuse example thresholds without checking your battery and charger.
-
-        **JSK cell upper limit: 3.65 V.** Check charger settings independently.
+        **Protection thresholds:** Check the actual EEPROM values against your cells, charger and load. An individual cell group can reach its cutoff before the total pack threshold.
     - type: entities
       title: Operation Status
       show_header_toggle: false
