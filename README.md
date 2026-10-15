@@ -4,6 +4,23 @@
 
 [Українська документація](README_UA.md) · [Installation](docs/INSTALL_EN.md) · [Hardware](docs/HARDWARE.md) · [Configuration](docs/CONFIGURATION.md)
 
+## Screenshots
+
+<a href="screenshots/Overview.png"><img src="screenshots/Overview.png" alt="Overview: JBD BMS Home Assistant dashboard" width="680"></a>
+
+| Profile management | EEPROM readout |
+|:--:|:--:|
+| <a href="screenshots/Profiles.png"><img src="screenshots/Profiles.png" alt="Profiles" width="345"></a> | <a href="screenshots/EEPROM.png"><img src="screenshots/EEPROM.png" alt="EEPROM" width="345"></a> |
+
+<details>
+<summary>More screenshots: Settings, Protection, Charts</summary>
+
+| Settings | Protection | Charts |
+|:--:|:--:|:--:|
+| <a href="screenshots/Settings.png"><img src="screenshots/Settings.png" alt="Settings" width="225"></a> | <a href="screenshots/Protection.png"><img src="screenshots/Protection.png" alt="Protection" width="225"></a> | <a href="screenshots/Charts.png"><img src="screenshots/Charts.png" alt="Charts" width="225"></a> |
+
+</details>
+
 ## Features
 
 - Live telemetry: pack/cell-group voltage, current, power, SOC, capacity, temperature and protection status.
@@ -18,6 +35,14 @@
 Tested by the maintainer with **JBD DP04S007-L4S 60A (4S, PCB V2.1)** and **ESP32-C3 Zero**. EEPROM APPLY and read-back have been exercised on this setup. Compatibility with other JBD models and PCB revisions is not established. This is a **beta release**; see [testing scope](docs/TESTING.md).
 
 The tested setup also uses a **5 V DC-DC converter powered from the battery B+/B− terminals** and an optional external **ZNLD active balancer**. See [hardware wiring](docs/HARDWARE.md) before connecting your controller.
+
+## Hardware setup
+
+The tested **4S4P LiFePO₄ battery pack** uses a JBD BMS, an ESP32-C3 Zero powered via a **5 V DC-DC buck converter from battery B+ / B−**, and an independent ZNLD active balancer. The components are mounted in a 3D-printed enclosure. See [Hardware and wiring](docs/HARDWARE.md) for the connection details.
+
+| Assembled battery pack | BMS and controller wiring |
+|:--:|:--:|
+| <a href="screenshots/Hardware-Side.jpg"><img src="screenshots/Hardware-Side.jpg" alt="Angled view of the assembled LiFePO4 battery pack" width="320"></a> | <a href="screenshots/Hardware-Front.jpg"><img src="screenshots/Hardware-Front.jpg" alt="Close view of the JBD BMS, ESP32 and connected wiring" width="320"></a> |
 
 ## Installation
 
