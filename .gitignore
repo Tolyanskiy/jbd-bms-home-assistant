@@ -1,0 +1,25 @@
+# Credentials and private data
+secrets.yaml
+**/secrets.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ESPHome/build artifacts
+.esphome/
+**/.esphome/
+.pioenvs/
+.piolibdeps/
+build/
+*.bin
+*.elf
+*.map
+*.log
+
+# Local tooling
+.venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
+Thumbs.db

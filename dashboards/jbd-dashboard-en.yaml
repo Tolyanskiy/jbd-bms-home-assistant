@@ -1,0 +1,825 @@
+title: JBD Battery Manager
+views:
+- title: Overview
+  path: jbd-overview
+  icon: mdi:car-battery
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Battery · 4S4P
+    cards:
+    - type: markdown
+      content: "**JSK IFR32140-15Ah · 4S4P · 60 Ah**  \nJBD DP04S007L4S60A · ESP32-C3 Zero\n\n{% if is_state('binary_sensor.jbd_bms_online',\
+        \ 'on') %}\n\U0001F7E2 **BMS Online**\n{% else %}\n\U0001F534 **BMS Offline** — reported values may be stale\n\
+        {% endif %}"
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: gauge
+        entity: sensor.jbd_bms_soc
+        name: State of Charge, %
+        min: 0
+        max: 100
+        needle: true
+        severity:
+          red: 0
+          yellow: 20
+          green: 50
+      - type: gauge
+        entity: sensor.jbd_bms_total_voltage
+        name: Voltage, V
+        min: 10
+        max: 15
+        needle: true
+        severity:
+          red: 10
+          yellow: 11
+          green: 12
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_current
+        name: Battery Current
+      - type: tile
+        entity: sensor.jbd_bms_power
+        name: Power
+      - type: tile
+        entity: sensor.jbd_bms_temperature
+        name: Temperature
+      - type: tile
+        entity: sensor.jbd_bms_remaining_capacity
+        name: Remaining, Ah
+    - type: entities
+      title: System Status
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_online
+        name: BMS Online
+      - entity: sensor.jbd_bms_operation_status
+        name: Operating Status
+      - entity: binary_sensor.jbd_bms_charge_mosfet
+        name: Charge MOSFET
+      - entity: binary_sensor.jbd_bms_discharge_mosfet
+        name: Discharge MOSFET
+      - entity: binary_sensor.jbd_bms_afe_error
+        name: AFE Error
+      - entity: binary_sensor.jbd_bms_mosfet_software_lock
+        name: Software Lock
+    - type: entities
+      title: Discharge MOSFET Control
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_discharge_mosfet
+        name: Reported MOSFET State
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: button
+        name: Enable Discharge
+        icon: mdi:power
+        tap_action:
+          action: perform-action
+          perform_action: switch.turn_on
+          target:
+            entity_id: switch.jbd_bms_discharge_mosfet_control
+          confirmation:
+            title: Confirm Enable
+            text: Enable discharge MOSFET? Disconnect the UPS and external load before testing.
+      - type: button
+        name: Disable Discharge
+        icon: mdi:power-off
+        tap_action:
+          action: perform-action
+          perform_action: switch.turn_off
+          target:
+            entity_id: switch.jbd_bms_discharge_mosfet_control
+          confirmation:
+            title: Confirm Disable
+            text: Disable discharge MOSFET? Any connected load may immediately lose power.
+    - type: markdown
+      content: Indicators show states reported by the BMS. Protection functions must be tested separately.
+  - type: grid
+    title: Balancing & Capacity
+    cards:
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_cell_1
+        name: Cell Group 1
+      - type: tile
+        entity: sensor.jbd_bms_cell_2
+        name: Cell Group 2
+      - type: tile
+        entity: sensor.jbd_bms_cell_3
+        name: Cell Group 3
+      - type: tile
+        entity: sensor.jbd_bms_cell_4
+        name: Cell Group 4
+    - type: entities
+      title: Cell Voltages & Balance
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_cell_delta
+        name: Voltage Delta
+      - entity: sensor.jbd_bms_average_cell_voltage
+        name: Average Cell Voltage
+      - entity: sensor.jbd_bms_minimum_cell_voltage
+        name: Minimum
+      - entity: sensor.jbd_bms_minimum_voltage_cell_number
+        name: Min Cell Group
+      - entity: sensor.jbd_bms_maximum_cell_voltage
+        name: Maximum
+      - entity: sensor.jbd_bms_maximum_voltage_cell_number
+        name: Max Cell Group
+      - entity: binary_sensor.jbd_bms_balancing
+        name: Passive Balancing
+      - entity: sensor.jbd_bms_balancing_cells
+        name: Balancing Groups
+    - type: entities
+      title: Capacity & Status
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_nominal_capacity
+        name: Rated Capacity
+      - entity: sensor.jbd_bms_remaining_capacity
+        name: Remaining, Ah
+      - entity: sensor.jbd_bms_cycle_capacity
+        name: Cycle Capacity
+      - entity: sensor.jbd_bms_charging_cycles
+        name: Charge Cycles
+      - entity: sensor.jbd_bms_soc
+        name: SOC
+      - entity: sensor.jbd_bms_cell_count
+        name: Series Cell Groups
+    - type: markdown
+      content: '**Note.** An external ZNLD 2 A active balancer operates independently of JBD. The Balancing indicator
+        reports **JBD passive balancing only**.'
+- title: Charts
+  path: jbd-trends
+  icon: mdi:chart-line
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: LiFePO₄ Cell Groups
+    cards:
+    - type: statistics-graph
+      title: Four Cell Groups · 24 h
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_cell_1
+        name: Cell Group 1
+      - entity: sensor.jbd_bms_cell_2
+        name: Cell Group 2
+      - entity: sensor.jbd_bms_cell_3
+        name: Cell Group 3
+      - entity: sensor.jbd_bms_cell_4
+        name: Cell Group 4
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_cell_1
+        name: Cell Group 1
+      - type: tile
+        entity: sensor.jbd_bms_cell_2
+        name: Cell Group 2
+      - type: tile
+        entity: sensor.jbd_bms_cell_3
+        name: Cell Group 3
+      - type: tile
+        entity: sensor.jbd_bms_cell_4
+        name: Cell Group 4
+    - type: entities
+      title: Balancing
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_cell_delta
+        name: Voltage Delta
+      - entity: sensor.jbd_bms_average_cell_voltage
+        name: Average Cell Voltage
+      - entity: binary_sensor.jbd_bms_balancing
+        name: Passive Balancing
+      - entity: sensor.jbd_bms_balancing_cells
+        name: Balancing Groups
+    - type: markdown
+      content: Charts use Home Assistant Recorder statistics. If unavailable, allow time for statistics to accumulate.
+        The external active balancer is not shown.
+  - type: grid
+    title: Current & Temperature
+    cards:
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_current
+        name: Current, A
+      - type: tile
+        entity: sensor.jbd_bms_power
+        name: Power, W
+      - type: tile
+        entity: sensor.jbd_bms_charging_power
+        name: Charging, W
+      - type: tile
+        entity: sensor.jbd_bms_discharging_power
+        name: Discharging, W
+    - type: statistics-graph
+      title: Battery Current · 24 h
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_current
+        name: Current
+    - type: statistics-graph
+      title: Power · 24 h
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_power
+        name: Power
+    - type: statistics-graph
+      title: Temperature · 24 h
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_temperature
+        name: Temperature
+    - type: markdown
+      content: Check the battery current under load. The example JBD is rated at 60 A; this sample UPS can demand more
+        than the configured BMS current rating.
+- title: Protection
+  path: jbd-protection
+  icon: mdi:shield-check
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Active Protections
+    cards:
+    - type: entities
+      title: Voltage / Current / Short Circuit
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_cell_overvoltage
+        name: 'Cell: Overvoltage'
+      - entity: binary_sensor.jbd_bms_cell_undervoltage
+        name: 'Cell: Undervoltage'
+      - entity: binary_sensor.jbd_bms_pack_overvoltage
+        name: 'Pack: Overvoltage'
+      - entity: binary_sensor.jbd_bms_pack_undervoltage
+        name: 'Pack: Undervoltage'
+      - entity: binary_sensor.jbd_bms_charge_overcurrent
+        name: Charge Overcurrent
+      - entity: binary_sensor.jbd_bms_discharge_overcurrent
+        name: Discharge Overcurrent
+      - entity: binary_sensor.jbd_bms_short_circuit_protection
+        name: Short-Circuit Protection
+    - type: entities
+      title: Temperature Protections
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_charge_overtemperature
+        name: 'Charge: Overtemperature'
+      - entity: binary_sensor.jbd_bms_charge_undertemperature
+        name: 'Charge: Undertemperature'
+      - entity: binary_sensor.jbd_bms_discharge_overtemperature
+        name: 'Discharge: Overtemperature'
+      - entity: binary_sensor.jbd_bms_discharge_undertemperature
+        name: 'Discharge: Undertemperature'
+    - type: markdown
+      content: An OK status only means the BMS reports no active alarm. Protective cutoffs require separate bench verification.
+  - type: grid
+    title: History & Diagnostics
+    cards:
+    - type: entities
+      title: Protection Event Counters
+      show_header_toggle: false
+      entities:
+      - entity: button.jbd_bms_read_error_counters
+        name: Read Event Counters
+      - entity: sensor.jbd_bms_battery_overvoltage_error_count
+        name: Battery OVP
+      - entity: sensor.jbd_bms_battery_undervoltage_error_count
+        name: Battery UVP
+      - entity: sensor.jbd_bms_cell_overvoltage_error_count
+        name: Cell OVP
+      - entity: sensor.jbd_bms_cell_undervoltage_error_count
+        name: Cell UVP
+      - entity: sensor.jbd_bms_charge_overcurrent_error_count
+        name: Charge Overcurrent
+      - entity: sensor.jbd_bms_discharge_overcurrent_error_count
+        name: Discharge Overcurrent
+      - entity: sensor.jbd_bms_short_circuit_error_count
+        name: Short Circuit
+    - type: entities
+      title: Identification
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_device_model
+        name: Model
+      - entity: sensor.jbd_bms_bms_software_version
+        name: JBD Firmware
+      - entity: sensor.jbd_bms_errors
+        name: Active Errors
+    - type: entities
+      title: Device Information
+      show_header_toggle: false
+      entities:
+      - entity: button.jbd_bms_read_hardware_version
+        name: Read Hardware Version
+    - type: markdown
+      content: Protection-event counters represent the device history since their last reset. Export them before operations
+        that may clear the history.
+- title: EEPROM
+  path: jbd-eeprom
+  icon: mdi:chip
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Values Read from BMS
+    cards:
+    - type: entities
+      title: Actual EEPROM · Cells & Balancing
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: Read All 10/10
+      - entity: sensor.jbd_bms_eeprom_read_status
+        name: Read Status
+      - entity: sensor.jbd_bms_bms_configuration_status
+        name: Configuration Status
+      - entity: sensor.jbd_bms_eeprom_cell_overvoltage
+        name: Overvoltage
+      - entity: sensor.jbd_bms_eeprom_cell_overvoltage_recovery
+        name: Overvoltage Recovery
+      - entity: sensor.jbd_bms_eeprom_cell_undervoltage
+        name: Undervoltage
+      - entity: sensor.jbd_bms_eeprom_cell_undervoltage_recovery
+        name: Undervoltage Recovery
+      - entity: sensor.jbd_bms_eeprom_balance_start_voltage
+        name: Balance Start
+      - entity: sensor.jbd_bms_eeprom_balance_delta
+        name: Balance Delta
+    - type: entities
+      title: Diagnostic Information
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_bms_eeprom_backup_raw
+        name: Backup (Raw)
+    - type: markdown
+      content: EEPROM values show the last readings from the BMS. After a restart, select Read All 10 Parameters to obtain
+        a fresh result. Editable DRAFT fields are in Settings.
+  - type: grid
+    title: Read & Status
+    cards:
+    - type: entities
+      title: EEPROM Read · 10 Parameters
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: 10/10 Read Result
+      - entity: sensor.jbd_bms_eeprom_read_status
+        name: Additional Diagnostics
+    - type: tile
+      entity: button.jbd_bms_read_all_10_eeprom_parameters_no_save
+      name: Read All 10 Parameters
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        target:
+          entity_id: button.jbd_bms_read_all_10_eeprom_parameters_no_save
+        confirmation:
+          title: EEPROM Read
+          text: Read all ten parameters in factory mode without writing changes?
+    - type: entities
+      title: Actual Pack Thresholds
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_pack_overvoltage
+        name: Pack Overvoltage
+      - entity: sensor.jbd_bms_eeprom_pack_overvoltage_recovery
+        name: Pack OVP Recovery
+      - entity: sensor.jbd_bms_eeprom_pack_undervoltage
+        name: Pack Undervoltage
+      - entity: sensor.jbd_bms_eeprom_pack_undervoltage_recovery
+        name: Pack UVP Recovery
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: button.jbd_bms_read_eeprom_via_factory_mode_no_save
+        name: Read 6 Parameters Only
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_read_eeprom_via_factory_mode_no_save
+          confirmation:
+            title: Confirm Action
+            text: Read in factory mode? Disconnect UPS, charger, and load; wait for confirmed exit.
+      - type: tile
+        entity: button.jbd_bms_emergency_exit_factory_mode_no_save
+        name: Exit Without Saving
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_emergency_exit_factory_mode_no_save
+          confirmation:
+            title: Confirm Action
+            text: Request emergency exit from factory mode without saving?
+    - type: markdown
+      content: '**Factory Mode:** reads configuration without applying changes. Wait for `Read 10/10; exit confirmed`.
+        The six-register reader remains for compatibility; full comparison uses an independent ten-register read.'
+- title: Settings
+  path: jbd-settings
+  icon: mdi:tune
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Threshold Editor
+    cards:
+    - type: markdown
+      content: '**Changes require unlocking the editor.** DRAFT values never modify JBD automatically. Editing remains
+        locked after an ESP32 reboot.'
+    - type: entities
+      title: Access & Validation
+      show_header_toggle: false
+      entities:
+      - entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        name: Unlock Configuration Editing
+      - entity: sensor.jbd_bms_bms_configuration_status
+        name: Configuration Status
+      - entity: sensor.jbd_bms_draft_validation_status_no_write
+        name: Validate Values
+      - entity: sensor.jbd_bms_eeprom_draft_compare_no_write
+        name: DRAFT Comparison
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'off'
+      card:
+        type: markdown
+        content: 🔒 **Editor locked.** Unlock only when preparing parameters with the UPS disconnected.
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'on'
+      card:
+        type: vertical-stack
+        cards:
+        - type: entities
+          title: DRAFT · Pack Thresholds
+          show_header_toggle: false
+          entities:
+          - entity: number.jbd_bms_draft_pack_overvoltage_locked
+            name: Pack Overvoltage
+          - entity: number.jbd_bms_draft_pack_overvoltage_recovery_locked
+            name: Pack OVP Recovery
+          - entity: number.jbd_bms_draft_pack_undervoltage_locked
+            name: Pack Undervoltage
+          - entity: number.jbd_bms_draft_pack_undervoltage_recovery_locked
+            name: Pack UVP Recovery
+        - type: entities
+          title: DRAFT · Cell Thresholds
+          show_header_toggle: false
+          entities:
+          - entity: number.jbd_bms_draft_cell_overvoltage_no_write
+            name: Cell Overvoltage
+          - entity: number.jbd_bms_draft_overvoltage_recovery_no_write
+            name: Cell OVP Recovery
+          - entity: number.jbd_bms_draft_cell_undervoltage_no_write
+            name: Cell Undervoltage
+          - entity: number.jbd_bms_draft_undervoltage_recovery_no_write
+            name: Cell UVP Recovery
+        - type: entities
+          title: DRAFT · Balancing
+          show_header_toggle: false
+          entities:
+          - entity: number.jbd_bms_draft_balance_start_no_write
+            name: Balance Start
+          - entity: number.jbd_bms_draft_balance_delta_no_write
+            name: Balance Delta, V
+  - type: grid
+    title: Validation & Apply
+    cards:
+    - type: markdown
+      content: |-
+        **Example UPS/BMS thresholds on this build:** LogicPower stops discharging at **10.5 V**, the current JBD Pack UVP is **10.2 V**, and Cell UVP is **2.55 V**. An imbalanced group can reach cell cutoff before the pack threshold. Do not reuse example thresholds without checking your battery and charger.
+
+        **JSK cell upper limit: 3.65 V.** Check charger settings independently.
+    - type: entities
+      title: Operation Status
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: Read Full EEPROM
+      - entity: sensor.jbd_bms_draft_validation_status_no_write
+        name: Validate DRAFT
+      - entity: sensor.jbd_bms_eeprom_draft_compare_no_write
+        name: Comparison
+      - entity: sensor.jbd_bms_bms_configuration_status
+        name: Operation
+      - entity: sensor.jbd_bms_bms_eeprom_backup_raw
+        name: EEPROM Backup
+    - type: entities
+      title: 10 Parameters · DRAFT − EEPROM
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_draft_compare_no_write
+        name: Comparison Result
+      - entity: sensor.jbd_bms_compare_pack_overvoltage_delta
+        name: Pack · OVP, Δ
+      - entity: sensor.jbd_bms_compare_pack_ovp_recovery_delta
+        name: Pack · OVP Recovery, Δ
+      - entity: sensor.jbd_bms_compare_pack_undervoltage_delta
+        name: Pack · UVP, Δ
+      - entity: sensor.jbd_bms_compare_pack_uvp_recovery_delta
+        name: Pack · UVP Recovery, Δ
+      - entity: sensor.jbd_bms_compare_cell_overvoltage_delta
+        name: Cell · OVP, Δ
+      - entity: sensor.jbd_bms_compare_cell_ovp_recovery_delta
+        name: Cell · OVP Recovery, Δ
+      - entity: sensor.jbd_bms_compare_cell_undervoltage_delta
+        name: Cell · UVP, Δ
+      - entity: sensor.jbd_bms_compare_cell_uvp_recovery_delta
+        name: Cell · UVP Recovery, Δ
+      - entity: sensor.jbd_bms_compare_balance_start_delta
+        name: Balancing · Start, Δ
+      - entity: sensor.jbd_bms_compare_balance_window_delta
+        name: Balancing · Delta, Δ
+    - type: markdown
+      content: '**Δ = DRAFT − EEPROM.** Positive raises a threshold; negative lowers it. After ESP32 restart, open EEPROM,
+        press Read All 10 Parameters and wait for `Read 10/10; exit confirmed`. Then select Compare with EEPROM. The
+        compare action does not write data.'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'on'
+      card:
+        type: entities
+        title: Prepare & Validate DRAFT
+        show_header_toggle: false
+        entities:
+        - entity: button.jbd_bms_reset_draft_to_recommended_no_write
+          name: Reset to Project Defaults
+        - entity: button.jbd_bms_validate_draft_no_write
+          name: Validate Values
+        - entity: button.jbd_bms_compare_eeprom_draft_no_write
+          name: Compare with EEPROM
+        - entity: button.jbd_bms_review_and_arm_configuration_60s
+          name: Review / ARM · 60 s
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'off'
+      card:
+        type: markdown
+        content: 🔒 **APPLY unavailable:** editing is locked.
+    - type: markdown
+      content: ⚠️ **Writing EEPROM:** validate DRAFT, ensure charging and load are disconnected, and verify the result
+        by reading EEPROM again.
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'on'
+      card:
+        type: tile
+        entity: button.jbd_bms_apply_configuration_to_jbd_eeprom_bench_only
+        name: APPLY — Write EEPROM
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_apply_configuration_to_jbd_eeprom_bench_only
+          confirmation:
+            title: Confirm Action
+            text: Write the prepared EEPROM parameters? Disconnect charger and load and verify the backup. Continue?
+- title: Profiles
+  path: jbd-profiles
+  icon: mdi:playlist-check
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: BMS Profiles
+    column_span: 2
+    cards:
+    - type: markdown
+      content: '**Project** contains fixed ESPHome defaults; **Custom** is a separately saved profile. **DRAFT** is the
+        editable staging area, and **EEPROM** reflects the BMS. Loading a profile changes **DRAFT only**.'
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: My Profile · Pack
+    cards:
+    - type: entities
+      title: Pack · 4 Thresholds
+      show_header_toggle: false
+      entities:
+      - entity: number.jbd_bms_profile_user_pack_overvoltage
+        name: Overvoltage (OVP)
+      - entity: number.jbd_bms_profile_user_pack_ovp_recovery
+        name: OVP Recovery
+      - entity: number.jbd_bms_profile_user_pack_undervoltage
+        name: Undervoltage (UVP)
+      - entity: number.jbd_bms_profile_user_pack_uvp_recovery
+        name: UVP Recovery
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: My Profile · Cells & Balance
+    cards:
+    - type: entities
+      title: Cells & Balance · 6 Parameters
+      show_header_toggle: false
+      entities:
+      - entity: number.jbd_bms_profile_user_cell_overvoltage
+        name: Overvoltage (OVP)
+      - entity: number.jbd_bms_profile_user_cell_ovp_recovery
+        name: OVP Recovery
+      - entity: number.jbd_bms_profile_user_cell_undervoltage
+        name: Undervoltage (UVP)
+      - entity: number.jbd_bms_profile_user_cell_uvp_recovery
+        name: UVP Recovery
+      - entity: number.jbd_bms_profile_user_balance_start
+        name: Balance Start
+      - entity: number.jbd_bms_profile_user_balance_delta
+        name: Balance Delta
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Project Profile
+    cards:
+    - type: entities
+      title: Project Defaults · Read Only
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_profile_project_pack_overvoltage
+        name: Pack · OVP
+      - entity: sensor.jbd_bms_profile_project_pack_ovp_recovery
+        name: Pack · OVP Recovery
+      - entity: sensor.jbd_bms_profile_project_pack_undervoltage
+        name: Pack · UVP
+      - entity: sensor.jbd_bms_profile_project_pack_uvp_recovery
+        name: Pack · UVP Recovery
+      - entity: sensor.jbd_bms_profile_project_cell_overvoltage
+        name: Cells · OVP
+      - entity: sensor.jbd_bms_profile_project_cell_ovp_recovery
+        name: Cells · OVP Recovery
+      - entity: sensor.jbd_bms_profile_project_cell_undervoltage
+        name: Cells · UVP
+      - entity: sensor.jbd_bms_profile_project_cell_uvp_recovery
+        name: Cells · UVP Recovery
+      - entity: sensor.jbd_bms_profile_project_balance_start
+        name: Balance Start
+      - entity: sensor.jbd_bms_profile_project_balance_delta
+        name: Balance Delta
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Actions & Status
+    cards:
+    - type: entities
+      title: Profile Status
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_profile_status
+        name: Profile Operation
+      - entity: sensor.jbd_bms_profile_comparison_status
+        name: Comparison Result
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: EEPROM Read Freshness
+      - entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        name: Unlock Loading into DRAFT
+      grid_options:
+        columns: full
+        rows: auto
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: button.jbd_bms_profile_save_custom_no_write
+        name: Save Custom Profile
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_save_custom_no_write
+          confirmation:
+            title: Confirm Action
+            text: Save the profile editor values to ESP32 memory? EEPROM is not changed.
+      - type: tile
+        entity: button.jbd_bms_profile_load_project_into_draft_no_write
+        name: Project → DRAFT
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_load_project_into_draft_no_write
+          confirmation:
+            title: Confirm Action
+            text: Replace all ten DRAFT fields with project defaults? EEPROM is not changed.
+      - type: tile
+        entity: button.jbd_bms_profile_load_custom_into_draft_no_write
+        name: Custom → DRAFT
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_load_custom_into_draft_no_write
+          confirmation:
+            title: Confirm Action
+            text: Load the last SAVED custom profile into DRAFT? EEPROM is not changed.
+      - type: tile
+        entity: button.jbd_bms_profile_compare_project_custom_draft_eeprom_no_write
+        name: Compare Profiles
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_compare_project_custom_draft_eeprom_no_write
+          confirmation:
+            title: Confirm Action
+            text: Compare project defaults, saved custom profile, DRAFT, and the latest EEPROM read?
+      grid_options:
+        columns: full
+        rows: auto
+    - type: markdown
+      content: Profile editor changes **are not saved automatically**. Select Save Custom Profile and confirm the status.
+        Wait at least 20 seconds before rebooting ESP32.
+      grid_options:
+        columns: full
+        rows: auto
+    - type: markdown
+      content: '**Workflow:** edit → save → unlock DRAFT → load profile → validate → optionally read EEPROM 10/10 → compare.
+        Buttons on this tab **never write JBD parameters**.'
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Compare Four Sets
+    column_span: 2
+    cards:
+    - type: markdown
+      content: |-
+        {% macro fmt(entity_id, precision=2) -%}
+          {%- set raw = states(entity_id) -%}
+          {{- (('%.' ~ precision ~ 'f') | format(raw | float)) if is_number(raw) else '—' -}}
+        {%- endmacro %}
+
+        **Compare: Project / Custom / DRAFT / EEPROM (V)**
+
+        | Parameter | Project | Saved Custom | DRAFT | EEPROM |
+        |:--|--:|--:|--:|--:|
+        | Pack OVP | {{ fmt('sensor.jbd_bms_profile_project_pack_overvoltage', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_overvoltage', 2) }} | {{ fmt('number.jbd_bms_draft_pack_overvoltage_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_overvoltage', 2) }} |
+        | Pack OVP Recovery | {{ fmt('sensor.jbd_bms_profile_project_pack_ovp_recovery', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_ovp_recovery', 2) }} | {{ fmt('number.jbd_bms_draft_pack_overvoltage_recovery_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_overvoltage_recovery', 2) }} |
+        | Pack UVP | {{ fmt('sensor.jbd_bms_profile_project_pack_undervoltage', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_undervoltage', 2) }} | {{ fmt('number.jbd_bms_draft_pack_undervoltage_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_undervoltage', 2) }} |
+        | Pack UVP Recovery | {{ fmt('sensor.jbd_bms_profile_project_pack_uvp_recovery', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_uvp_recovery', 2) }} | {{ fmt('number.jbd_bms_draft_pack_undervoltage_recovery_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_undervoltage_recovery', 2) }} |
+        | Cells OVP | {{ fmt('sensor.jbd_bms_profile_project_cell_overvoltage', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_overvoltage', 3) }} | {{ fmt('number.jbd_bms_draft_cell_overvoltage_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_overvoltage', 3) }} |
+        | Cells OVP Recovery | {{ fmt('sensor.jbd_bms_profile_project_cell_ovp_recovery', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_ovp_recovery', 3) }} | {{ fmt('number.jbd_bms_draft_overvoltage_recovery_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_overvoltage_recovery', 3) }} |
+        | Cells UVP | {{ fmt('sensor.jbd_bms_profile_project_cell_undervoltage', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_undervoltage', 3) }} | {{ fmt('number.jbd_bms_draft_cell_undervoltage_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_undervoltage', 3) }} |
+        | Cells UVP Recovery | {{ fmt('sensor.jbd_bms_profile_project_cell_uvp_recovery', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_uvp_recovery', 3) }} | {{ fmt('number.jbd_bms_draft_undervoltage_recovery_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_undervoltage_recovery', 3) }} |
+        | Balance Start | {{ fmt('sensor.jbd_bms_profile_project_balance_start', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_balance_start', 3) }} | {{ fmt('number.jbd_bms_draft_balance_start_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_balance_start_voltage', 3) }} |
+        | Balance Delta | {{ fmt('sensor.jbd_bms_profile_project_balance_delta', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_balance_delta', 3) }} | {{ fmt('number.jbd_bms_draft_balance_delta_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_balance_delta', 3) }} |
+
+        If EEPROM has not been read after reboot, select Read All 10 Parameters on the EEPROM tab.
+        The custom profile column shows the **last saved snapshot**, not unsaved edits.
+      grid_options:
+        columns: full
+        rows: auto

@@ -1,0 +1,826 @@
+title: Керування акумулятором JBD
+views:
+- title: Огляд
+  path: jbd-overview
+  icon: mdi:car-battery
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Акумулятор · 4S4P
+    cards:
+    - type: markdown
+      content: "**JSK IFR32140-15Ah · 4S4P · 60 А·год**  \nJBD DP04S007L4S60A · ESP32-C3 Zero\n\n{% if is_state('binary_sensor.jbd_bms_online',\
+        \ 'on') %}\n\U0001F7E2 **BMS на зв'язку**\n{% else %}\n\U0001F534 **BMS не на зв'язку** — показники можуть бути\
+        \ застарілі\n{% endif %}"
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: gauge
+        entity: sensor.jbd_bms_soc
+        name: Рівень заряду, %
+        min: 0
+        max: 100
+        needle: true
+        severity:
+          red: 0
+          yellow: 20
+          green: 50
+      - type: gauge
+        entity: sensor.jbd_bms_total_voltage
+        name: Напруга, В
+        min: 10
+        max: 15
+        needle: true
+        severity:
+          red: 10
+          yellow: 11
+          green: 12
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_current
+        name: Струм батареї
+      - type: tile
+        entity: sensor.jbd_bms_power
+        name: Потужність
+      - type: tile
+        entity: sensor.jbd_bms_temperature
+        name: Температура
+      - type: tile
+        entity: sensor.jbd_bms_remaining_capacity
+        name: Залишок, Ah
+    - type: entities
+      title: Загальний стан
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_online
+        name: Доступність BMS
+      - entity: sensor.jbd_bms_operation_status
+        name: Режим роботи
+      - entity: binary_sensor.jbd_bms_charge_mosfet
+        name: Зарядний MOSFET
+      - entity: binary_sensor.jbd_bms_discharge_mosfet
+        name: Розрядний MOSFET
+      - entity: binary_sensor.jbd_bms_afe_error
+        name: Помилка AFE
+      - entity: binary_sensor.jbd_bms_mosfet_software_lock
+        name: Програмне блокування
+    - type: entities
+      title: Керування розрядним MOSFET
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_discharge_mosfet
+        name: Стан MOSFET за даними BMS
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: button
+        name: Увімкнути розряд
+        icon: mdi:power
+        tap_action:
+          action: perform-action
+          perform_action: switch.turn_on
+          target:
+            entity_id: switch.jbd_bms_discharge_mosfet_control
+          confirmation:
+            title: Підтвердження ввімкнення
+            text: Увімкнути розрядний MOSFET? Перед тестом від'єднайте ДБЖ та навантаження.
+      - type: button
+        name: Вимкнути розряд
+        icon: mdi:power-off
+        tap_action:
+          action: perform-action
+          perform_action: switch.turn_off
+          target:
+            entity_id: switch.jbd_bms_discharge_mosfet_control
+          confirmation:
+            title: Підтвердження вимкнення
+            text: Вимкнути розрядний MOSFET? Підключене навантаження може негайно втратити живлення.
+    - type: markdown
+      content: Індикатори показують поточні стани, які повідомляє BMS. Функції захисту перевіряються окремо.
+  - type: grid
+    title: Баланс і ємність
+    cards:
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_cell_1
+        name: Група 1
+      - type: tile
+        entity: sensor.jbd_bms_cell_2
+        name: Група 2
+      - type: tile
+        entity: sensor.jbd_bms_cell_3
+        name: Група 3
+      - type: tile
+        entity: sensor.jbd_bms_cell_4
+        name: Група 4
+    - type: entities
+      title: Баланс і напруга
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_cell_delta
+        name: Різниця напруг
+      - entity: sensor.jbd_bms_average_cell_voltage
+        name: Середня напруга
+      - entity: sensor.jbd_bms_minimum_cell_voltage
+        name: Мінімум
+      - entity: sensor.jbd_bms_minimum_voltage_cell_number
+        name: Номер мін. групи
+      - entity: sensor.jbd_bms_maximum_cell_voltage
+        name: Максимум
+      - entity: sensor.jbd_bms_maximum_voltage_cell_number
+        name: Номер макс. групи
+      - entity: binary_sensor.jbd_bms_balancing
+        name: Пасивне балансування
+      - entity: sensor.jbd_bms_balancing_cells
+        name: Групи, що балансуються
+    - type: entities
+      title: Ємність та стан
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_nominal_capacity
+        name: Номінальна ємність
+      - entity: sensor.jbd_bms_remaining_capacity
+        name: Залишок, Ah
+      - entity: sensor.jbd_bms_cycle_capacity
+        name: Ємність для обліку циклів
+      - entity: sensor.jbd_bms_charging_cycles
+        name: Цикли
+      - entity: sensor.jbd_bms_soc
+        name: SOC
+      - entity: sensor.jbd_bms_cell_count
+        name: Груп у батареї
+    - type: markdown
+      content: '**Примітка.** Зовнішній балансир ZNLD 2 А працює незалежно від JBD. Датчик «Balancing» показує **лише
+        пасивне балансування JBD**, а не активний балансир.'
+- title: Графіки
+  path: jbd-trends
+  icon: mdi:chart-line
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Групи LiFePO₄
+    cards:
+    - type: statistics-graph
+      title: Напруга 4 груп · 24 години
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_cell_1
+        name: Група 1
+      - entity: sensor.jbd_bms_cell_2
+        name: Група 2
+      - entity: sensor.jbd_bms_cell_3
+        name: Група 3
+      - entity: sensor.jbd_bms_cell_4
+        name: Група 4
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_cell_1
+        name: Група 1
+      - type: tile
+        entity: sensor.jbd_bms_cell_2
+        name: Група 2
+      - type: tile
+        entity: sensor.jbd_bms_cell_3
+        name: Група 3
+      - type: tile
+        entity: sensor.jbd_bms_cell_4
+        name: Група 4
+    - type: entities
+      title: Балансування
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_cell_delta
+        name: Різниця напруг
+      - entity: sensor.jbd_bms_average_cell_voltage
+        name: Середня напруга
+      - entity: binary_sensor.jbd_bms_balancing
+        name: Пасивне балансування
+      - entity: sensor.jbd_bms_balancing_cells
+        name: Групи в балансуванні
+    - type: markdown
+      content: Графік використовує статистику Recorder. Якщо даних поки немає, потрібно дочекатися накопичення статистики.
+        Зовнішній активний балансир ZNLD тут не відображається.
+  - type: grid
+    title: Струм і температура
+    cards:
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.jbd_bms_current
+        name: Струм, А
+      - type: tile
+        entity: sensor.jbd_bms_power
+        name: Потужність, Вт
+      - type: tile
+        entity: sensor.jbd_bms_charging_power
+        name: Заряд, Вт
+      - type: tile
+        entity: sensor.jbd_bms_discharging_power
+        name: Розряд, Вт
+    - type: statistics-graph
+      title: Струм батареї · 24 години
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_current
+        name: Струм
+    - type: statistics-graph
+      title: Потужність · 24 години
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_power
+        name: Потужність
+    - type: statistics-graph
+      title: Температура · 24 години
+      chart_type: line
+      period: 5minute
+      days_to_show: 1
+      stat_types:
+      - mean
+      entities:
+      - entity: sensor.jbd_bms_temperature
+        name: Температура
+    - type: markdown
+      content: 'При навантаженні ДБЖ перевіряй струм: номінал JBD — 60 А; повна потужність LPM-PSW-1500VA перевищує можливості
+        цієї збірки.'
+- title: Захист
+  path: jbd-protection
+  icon: mdi:shield-check
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Активні захисти
+    cards:
+    - type: entities
+      title: Напруга / струм / КЗ
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_cell_overvoltage
+        name: 'Комірка: перенапруга'
+      - entity: binary_sensor.jbd_bms_cell_undervoltage
+        name: 'Комірка: низька напруга'
+      - entity: binary_sensor.jbd_bms_pack_overvoltage
+        name: 'Батарея: перенапруга'
+      - entity: binary_sensor.jbd_bms_pack_undervoltage
+        name: 'Батарея: низька напруга'
+      - entity: binary_sensor.jbd_bms_charge_overcurrent
+        name: Перевищення струму заряду
+      - entity: binary_sensor.jbd_bms_discharge_overcurrent
+        name: Перевищення струму розряду
+      - entity: binary_sensor.jbd_bms_short_circuit_protection
+        name: Захист від КЗ
+    - type: entities
+      title: Температурні захисти
+      show_header_toggle: false
+      entities:
+      - entity: binary_sensor.jbd_bms_charge_overtemperature
+        name: 'Заряд: перегрів'
+      - entity: binary_sensor.jbd_bms_charge_undertemperature
+        name: 'Заряд: низька температура'
+      - entity: binary_sensor.jbd_bms_discharge_overtemperature
+        name: 'Розряд: перегрів'
+      - entity: binary_sensor.jbd_bms_discharge_undertemperature
+        name: 'Розряд: низька температура'
+    - type: markdown
+      content: Статус «OK» означає відсутність активної помилки за даними BMS. Перевірку захистів проводять окремо за
+        відповідною методикою.
+  - type: grid
+    title: Історія та діагностика
+    cards:
+    - type: entities
+      title: Лічильники спрацювань
+      show_header_toggle: false
+      entities:
+      - entity: button.jbd_bms_read_error_counters
+        name: Зчитати історію
+      - entity: sensor.jbd_bms_battery_overvoltage_error_count
+        name: Battery OVP
+      - entity: sensor.jbd_bms_battery_undervoltage_error_count
+        name: Battery UVP
+      - entity: sensor.jbd_bms_cell_overvoltage_error_count
+        name: Cell OVP
+      - entity: sensor.jbd_bms_cell_undervoltage_error_count
+        name: Cell UVP
+      - entity: sensor.jbd_bms_charge_overcurrent_error_count
+        name: Надструм заряду
+      - entity: sensor.jbd_bms_discharge_overcurrent_error_count
+        name: Надструм розряду
+      - entity: sensor.jbd_bms_short_circuit_error_count
+        name: Коротке замикання
+    - type: entities
+      title: Ідентифікація
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_device_model
+        name: Модель
+      - entity: sensor.jbd_bms_bms_software_version
+        name: ПЗ JBD
+      - entity: sensor.jbd_bms_errors
+        name: Активні повідомлення
+    - type: entities
+      title: Заводська інформація
+      show_header_toggle: false
+      entities:
+      - entity: button.jbd_bms_read_hardware_version
+        name: Прочитати модель
+    - type: markdown
+      content: Лічильники спрацювань відображають історію захистів. Перед очищенням збережи їхні значення для діагностики.
+- title: EEPROM
+  path: jbd-eeprom
+  icon: mdi:chip
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Зчитані з BMS значення
+    cards:
+    - type: entities
+      title: Фактичні параметри EEPROM · комірки та балансування
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: Повне читання 10/10
+      - entity: sensor.jbd_bms_eeprom_read_status
+        name: Стан читання
+      - entity: sensor.jbd_bms_bms_configuration_status
+        name: Статус конфігурації
+      - entity: sensor.jbd_bms_eeprom_cell_overvoltage
+        name: Overvoltage
+      - entity: sensor.jbd_bms_eeprom_cell_overvoltage_recovery
+        name: Overvoltage Recovery
+      - entity: sensor.jbd_bms_eeprom_cell_undervoltage
+        name: Undervoltage
+      - entity: sensor.jbd_bms_eeprom_cell_undervoltage_recovery
+        name: Undervoltage Recovery
+      - entity: sensor.jbd_bms_eeprom_balance_start_voltage
+        name: Початок балансування
+      - entity: sensor.jbd_bms_eeprom_balance_delta
+        name: Різниця балансування
+    - type: entities
+      title: Діагностична інформація
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_bms_eeprom_backup_raw
+        name: Резервна копія, RAW
+    - type: markdown
+      content: Усі значення у вкладці EEPROM показують останні прочитані параметри BMS. Для незалежної перевірки після
+        перезапуску натисни «Зчитати всі 10 параметрів». Редаговані DRAFT-значення знаходяться на вкладці «Налаштування».
+  - type: grid
+    title: Читання й стан
+    cards:
+    - type: entities
+      title: Читання EEPROM — 10 параметрів
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: Результат читання 10/10
+      - entity: sensor.jbd_bms_eeprom_read_status
+        name: Додаткова діагностика
+    - type: tile
+      entity: button.jbd_bms_read_all_10_eeprom_parameters_no_save
+      name: Зчитати всі 10 параметрів
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        target:
+          entity_id: button.jbd_bms_read_all_10_eeprom_parameters_no_save
+        confirmation:
+          title: Читання EEPROM
+          text: Зчитати всі десять параметрів у Factory Mode без запису змін?
+    - type: entities
+      title: Фактичні Pack-пороги з EEPROM
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_pack_overvoltage
+        name: Pack Overvoltage
+      - entity: sensor.jbd_bms_eeprom_pack_overvoltage_recovery
+        name: Pack OVP Recovery
+      - entity: sensor.jbd_bms_eeprom_pack_undervoltage
+        name: Pack Undervoltage
+      - entity: sensor.jbd_bms_eeprom_pack_undervoltage_recovery
+        name: Pack UVP Recovery
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: button.jbd_bms_read_eeprom_via_factory_mode_no_save
+        name: Зчитати лише 6 параметрів
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_read_eeprom_via_factory_mode_no_save
+          confirmation:
+            title: Підтвердження дії
+            text: Виконати читання у Factory Mode? Відключи ДБЖ, зарядку та навантаження; дочекайся підтвердженого виходу.
+      - type: tile
+        entity: button.jbd_bms_emergency_exit_factory_mode_no_save
+        name: Вихід без збереження
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_emergency_exit_factory_mode_no_save
+          confirmation:
+            title: Підтвердження дії
+            text: Виконати аварійний вихід із Factory Mode без збереження?
+    - type: markdown
+      content: '**Factory Mode:** для читання параметрів без запису. Дочекайся `Read 10/10; exit confirmed`. Кнопка читання
+        шести регістрів залишена для сумісності; повне порівняння використовує незалежне читання десяти.'
+- title: Налаштування
+  path: jbd-settings
+  icon: mdi:tune
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Редактор параметрів
+    cards:
+    - type: markdown
+      content: '**Зміна параметрів — лише через розблокування.** Значення DRAFT не змінюють JBD автоматично. Після перезапуску
+        ESP32 доступ має залишатися вимкненим.'
+    - type: entities
+      title: Доступ і перевірка
+      show_header_toggle: false
+      entities:
+      - entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        name: 'Редагування EEPROM: дозволити'
+      - entity: sensor.jbd_bms_bms_configuration_status
+        name: Стан конфігурації
+      - entity: sensor.jbd_bms_draft_validation_status_no_write
+        name: Перевірка значень
+      - entity: sensor.jbd_bms_eeprom_draft_compare_no_write
+        name: Порівняння DRAFT
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'off'
+      card:
+        type: markdown
+        content: 🔒 **Редактор заблокований.** Увімкни дозвіл тільки для підготовки параметрів без підключеного ДБЖ.
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'on'
+      card:
+        type: vertical-stack
+        cards:
+        - type: entities
+          title: DRAFT · пороги всієї батареї
+          show_header_toggle: false
+          entities:
+          - entity: number.jbd_bms_draft_pack_overvoltage_locked
+            name: Pack Overvoltage
+          - entity: number.jbd_bms_draft_pack_overvoltage_recovery_locked
+            name: Pack OVP Recovery
+          - entity: number.jbd_bms_draft_pack_undervoltage_locked
+            name: Pack Undervoltage
+          - entity: number.jbd_bms_draft_pack_undervoltage_recovery_locked
+            name: Pack UVP Recovery
+        - type: entities
+          title: DRAFT · комірки
+          show_header_toggle: false
+          entities:
+          - entity: number.jbd_bms_draft_cell_overvoltage_no_write
+            name: Cell Overvoltage
+          - entity: number.jbd_bms_draft_overvoltage_recovery_no_write
+            name: Cell OVP Recovery
+          - entity: number.jbd_bms_draft_cell_undervoltage_no_write
+            name: Cell Undervoltage
+          - entity: number.jbd_bms_draft_undervoltage_recovery_no_write
+            name: Cell UVP Recovery
+        - type: entities
+          title: DRAFT · балансування
+          show_header_toggle: false
+          entities:
+          - entity: number.jbd_bms_draft_balance_start_no_write
+            name: Початок балансування
+          - entity: number.jbd_bms_draft_balance_delta_no_write
+            name: Поріг різниці, В
+  - type: grid
+    title: Перевірка та застосування
+    cards:
+    - type: markdown
+      content: |-
+        **Приклад узгодження для цієї системи:** LogicPower завершує розряд при **10,5 В**, а поточний поріг JBD Pack UVP становить **10,2 В**; Cell UVP — **2,55 В**. При дисбалансі груп захист комірки може спрацювати раніше. Уставки залежать від акумулятора та ДБЖ, не копіюй їх без перевірки.
+
+        **Верхня межа комірок JSK — 3,65 В.** Налаштування зарядного пристрою перевіряються окремо.
+    - type: entities
+      title: Статус операцій
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: Повне читання EEPROM
+      - entity: sensor.jbd_bms_draft_validation_status_no_write
+        name: Перевірка DRAFT
+      - entity: sensor.jbd_bms_eeprom_draft_compare_no_write
+        name: Порівняння
+      - entity: sensor.jbd_bms_bms_configuration_status
+        name: Операція
+      - entity: sensor.jbd_bms_bms_eeprom_backup_raw
+        name: Резервна копія EEPROM
+    - type: entities
+      title: Порівняння 10 параметрів · DRAFT − EEPROM
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_eeprom_draft_compare_no_write
+        name: Результат порівняння
+      - entity: sensor.jbd_bms_compare_pack_overvoltage_delta
+        name: Батарея · верхній поріг, Δ
+      - entity: sensor.jbd_bms_compare_pack_ovp_recovery_delta
+        name: Батарея · відновлення OVP, Δ
+      - entity: sensor.jbd_bms_compare_pack_undervoltage_delta
+        name: Батарея · нижній поріг, Δ
+      - entity: sensor.jbd_bms_compare_pack_uvp_recovery_delta
+        name: Батарея · відновлення UVP, Δ
+      - entity: sensor.jbd_bms_compare_cell_overvoltage_delta
+        name: Комірка · верхній поріг, Δ
+      - entity: sensor.jbd_bms_compare_cell_ovp_recovery_delta
+        name: Комірка · відновлення OVP, Δ
+      - entity: sensor.jbd_bms_compare_cell_undervoltage_delta
+        name: Комірка · нижній поріг, Δ
+      - entity: sensor.jbd_bms_compare_cell_uvp_recovery_delta
+        name: Комірка · відновлення UVP, Δ
+      - entity: sensor.jbd_bms_compare_balance_start_delta
+        name: Балансування · старт, Δ
+      - entity: sensor.jbd_bms_compare_balance_window_delta
+        name: Балансування · різниця, Δ
+    - type: markdown
+      content: '**Δ = DRAFT − EEPROM.** Плюс означає підвищення порога, мінус — зниження. Після перезавантаження ESP32
+        відкрий «EEPROM», натисни «Зчитати всі 10 параметрів», дочекайся `Read 10/10; exit confirmed`, потім «Порівняти
+        з EEPROM». Порівняння нічого не записує.'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'on'
+      card:
+        type: entities
+        title: Підготувати та перевірити DRAFT
+        show_header_toggle: false
+        entities:
+        - entity: button.jbd_bms_reset_draft_to_recommended_no_write
+          name: Скинути до проєктних
+        - entity: button.jbd_bms_validate_draft_no_write
+          name: Перевірити значення
+        - entity: button.jbd_bms_compare_eeprom_draft_no_write
+          name: Порівняти з EEPROM
+        - entity: button.jbd_bms_review_and_arm_configuration_60s
+          name: Review / ARM · 60 с
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'off'
+      card:
+        type: markdown
+        content: 🔒 **APPLY недоступна:** редагування вимкнене.
+    - type: markdown
+      content: ⚠️ **Запис конфігурації EEPROM:** перед застосуванням перевір значення DRAFT, переконайся у відсутності
+        заряджання та навантаження й підтвердь результат повторним читанням.
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        state: 'on'
+      card:
+        type: tile
+        entity: button.jbd_bms_apply_configuration_to_jbd_eeprom_bench_only
+        name: APPLY — запис EEPROM
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_apply_configuration_to_jbd_eeprom_bench_only
+          confirmation:
+            title: Підтвердження дії
+            text: Записати підготовлені параметри EEPROM? Переконайся, що зарядний пристрій і навантаження відключені
+              та збережена резервна копія. Продовжити?
+- title: Профілі
+  path: jbd-profiles
+  icon: mdi:playlist-check
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    title: Профілі BMS
+    column_span: 2
+    cards:
+    - type: markdown
+      content: '**Проєктний** — фіксовані значення з ESPHome. **Мій** — окремо збережений набір. **DRAFT** — підготовка
+        до запису. **EEPROM** — фактичні значення BMS. Завантаження профілю змінює **тільки DRAFT**.'
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Мій профіль · батарея
+    cards:
+    - type: entities
+      title: Батарея · 4 пороги
+      show_header_toggle: false
+      entities:
+      - entity: number.jbd_bms_profile_user_pack_overvoltage
+        name: Верхній поріг (OVP)
+      - entity: number.jbd_bms_profile_user_pack_ovp_recovery
+        name: Відновлення OVP
+      - entity: number.jbd_bms_profile_user_pack_undervoltage
+        name: Нижній поріг (UVP)
+      - entity: number.jbd_bms_profile_user_pack_uvp_recovery
+        name: Відновлення UVP
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Мій профіль · комірки й баланс
+    cards:
+    - type: entities
+      title: Комірки та баланс · 6 параметрів
+      show_header_toggle: false
+      entities:
+      - entity: number.jbd_bms_profile_user_cell_overvoltage
+        name: Верхній поріг (OVP)
+      - entity: number.jbd_bms_profile_user_cell_ovp_recovery
+        name: Відновлення OVP
+      - entity: number.jbd_bms_profile_user_cell_undervoltage
+        name: Нижній поріг (UVP)
+      - entity: number.jbd_bms_profile_user_cell_uvp_recovery
+        name: Відновлення UVP
+      - entity: number.jbd_bms_profile_user_balance_start
+        name: Баланс · початок
+      - entity: number.jbd_bms_profile_user_balance_delta
+        name: Баланс · різниця
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Проєктний профіль
+    cards:
+    - type: entities
+      title: Проєктні значення · лише перегляд
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_profile_project_pack_overvoltage
+        name: Батарея · OVP
+      - entity: sensor.jbd_bms_profile_project_pack_ovp_recovery
+        name: Батарея · OVP відновлення
+      - entity: sensor.jbd_bms_profile_project_pack_undervoltage
+        name: Батарея · UVP
+      - entity: sensor.jbd_bms_profile_project_pack_uvp_recovery
+        name: Батарея · UVP відновлення
+      - entity: sensor.jbd_bms_profile_project_cell_overvoltage
+        name: Комірки · OVP
+      - entity: sensor.jbd_bms_profile_project_cell_ovp_recovery
+        name: Комірки · OVP відновлення
+      - entity: sensor.jbd_bms_profile_project_cell_undervoltage
+        name: Комірки · UVP
+      - entity: sensor.jbd_bms_profile_project_cell_uvp_recovery
+        name: Комірки · UVP відновлення
+      - entity: sensor.jbd_bms_profile_project_balance_start
+        name: Баланс · початок
+      - entity: sensor.jbd_bms_profile_project_balance_delta
+        name: Баланс · різниця
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Дії та стан
+    cards:
+    - type: entities
+      title: Поточний стан профілів
+      show_header_toggle: false
+      entities:
+      - entity: sensor.jbd_bms_profile_status
+        name: Дія з профілями
+      - entity: sensor.jbd_bms_profile_comparison_status
+        name: Результат порівняння
+      - entity: sensor.jbd_bms_eeprom_read_all_10_status
+        name: Свіжість читання EEPROM
+      - entity: switch.jbd_bms_unlock_jbd_config_editing_bench_only
+        name: Дозволити завантаження в DRAFT
+      grid_options:
+        columns: full
+        rows: auto
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: button.jbd_bms_profile_save_custom_no_write
+        name: Зберегти мій профіль
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_save_custom_no_write
+          confirmation:
+            title: Підтвердження дії
+            text: Зберегти поточні значення редактора у пам’ять ESP32? EEPROM не змінюється.
+      - type: tile
+        entity: button.jbd_bms_profile_load_project_into_draft_no_write
+        name: Проєктний → DRAFT
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_load_project_into_draft_no_write
+          confirmation:
+            title: Підтвердження дії
+            text: Замінити всі 10 DRAFT-полів проєктними значеннями? EEPROM не змінюється.
+      - type: tile
+        entity: button.jbd_bms_profile_load_custom_into_draft_no_write
+        name: Мій профіль → DRAFT
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_load_custom_into_draft_no_write
+          confirmation:
+            title: Підтвердження дії
+            text: Завантажити останній ЗБЕРЕЖЕНИЙ користувацький профіль у DRAFT? EEPROM не змінюється.
+      - type: tile
+        entity: button.jbd_bms_profile_compare_project_custom_draft_eeprom_no_write
+        name: Порівняти профілі
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.jbd_bms_profile_compare_project_custom_draft_eeprom_no_write
+          confirmation:
+            title: Підтвердження дії
+            text: Порівняти проєктний, збережений користувацький профіль, DRAFT і поточний результат читання EEPROM?
+      grid_options:
+        columns: full
+        rows: auto
+    - type: markdown
+      content: Зміни в редакторі **не зберігаються автоматично**. Натисни «Зберегти мій профіль» і перевір статус. Перед
+        перезапуском ESP32 зачекай щонайменше 20 секунд.
+      grid_options:
+        columns: full
+        rows: auto
+    - type: markdown
+      content: '**Порядок:** редагуй → збережи → розблокуй DRAFT → завантаж профіль → перевір значення → за потреби прочитай
+        EEPROM 10/10 → порівняй. Кнопки на цій вкладці **не записують параметри в JBD**.'
+      grid_options:
+        columns: full
+        rows: auto
+  - type: grid
+    title: Порівняння 4 наборів
+    column_span: 2
+    cards:
+    - type: markdown
+      content: |-
+        {% macro fmt(entity_id, precision=2) -%}
+          {%- set raw = states(entity_id) -%}
+          {{- (('%.' ~ precision ~ 'f') | format(raw | float)) if is_number(raw) else '—' -}}
+        {%- endmacro %}
+
+        **Порівняння: проєктний / мій / DRAFT / EEPROM (В)**
+
+        | Параметр | Проєкт | Мій збережений | DRAFT | EEPROM |
+        |:--|--:|--:|--:|--:|
+        | Батарея OVP | {{ fmt('sensor.jbd_bms_profile_project_pack_overvoltage', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_overvoltage', 2) }} | {{ fmt('number.jbd_bms_draft_pack_overvoltage_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_overvoltage', 2) }} |
+        | Батарея OVP відн. | {{ fmt('sensor.jbd_bms_profile_project_pack_ovp_recovery', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_ovp_recovery', 2) }} | {{ fmt('number.jbd_bms_draft_pack_overvoltage_recovery_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_overvoltage_recovery', 2) }} |
+        | Батарея UVP | {{ fmt('sensor.jbd_bms_profile_project_pack_undervoltage', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_undervoltage', 2) }} | {{ fmt('number.jbd_bms_draft_pack_undervoltage_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_undervoltage', 2) }} |
+        | Батарея UVP відн. | {{ fmt('sensor.jbd_bms_profile_project_pack_uvp_recovery', 2) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_pack_uvp_recovery', 2) }} | {{ fmt('number.jbd_bms_draft_pack_undervoltage_recovery_locked', 2) }} | {{ fmt('sensor.jbd_bms_eeprom_pack_undervoltage_recovery', 2) }} |
+        | Комірки OVP | {{ fmt('sensor.jbd_bms_profile_project_cell_overvoltage', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_overvoltage', 3) }} | {{ fmt('number.jbd_bms_draft_cell_overvoltage_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_overvoltage', 3) }} |
+        | Комірки OVP відн. | {{ fmt('sensor.jbd_bms_profile_project_cell_ovp_recovery', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_ovp_recovery', 3) }} | {{ fmt('number.jbd_bms_draft_overvoltage_recovery_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_overvoltage_recovery', 3) }} |
+        | Комірки UVP | {{ fmt('sensor.jbd_bms_profile_project_cell_undervoltage', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_undervoltage', 3) }} | {{ fmt('number.jbd_bms_draft_cell_undervoltage_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_undervoltage', 3) }} |
+        | Комірки UVP відн. | {{ fmt('sensor.jbd_bms_profile_project_cell_uvp_recovery', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_cell_uvp_recovery', 3) }} | {{ fmt('number.jbd_bms_draft_undervoltage_recovery_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_cell_undervoltage_recovery', 3) }} |
+        | Баланс · старт | {{ fmt('sensor.jbd_bms_profile_project_balance_start', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_balance_start', 3) }} | {{ fmt('number.jbd_bms_draft_balance_start_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_balance_start_voltage', 3) }} |
+        | Баланс · Δ | {{ fmt('sensor.jbd_bms_profile_project_balance_delta', 3) }} | {{ fmt('sensor.jbd_bms_profile_custom_saved_balance_delta', 3) }} | {{ fmt('number.jbd_bms_draft_balance_delta_no_write', 3) }} | {{ fmt('sensor.jbd_bms_eeprom_balance_delta', 3) }} |
+
+        Якщо EEPROM ще не читали після перезапуску, натисни «Зчитати всі 10» у вкладці EEPROM.
+        Користувацький профіль показує **останній збережений знімок**, а не незбережені правки.
+      grid_options:
+        columns: full
+        rows: auto
