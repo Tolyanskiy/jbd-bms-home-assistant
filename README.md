@@ -16,7 +16,7 @@
 <summary>More screenshots: Settings, Protection, Charts</summary>
 
 | Settings | Protection | Charts |
-|:--:|:--:|:--:|
+|:--:|:--:|
 | <a href="screenshots/Settings.png"><img src="screenshots/Settings.png" alt="Settings" width="225"></a> | <a href="screenshots/Protection.png"><img src="screenshots/Protection.png" alt="Protection" width="225"></a> | <a href="screenshots/Charts.png"><img src="screenshots/Charts.png" alt="Charts" width="225"></a> |
 
 </details>
@@ -60,6 +60,10 @@ Detailed instructions: [English](docs/INSTALL_EN.md) · [Українською]
 **Project preset → Custom profile → DRAFT → EEPROM** are different layers. Profile changes do not write the BMS until the separate guarded APPLY operation. Project values are examples for the documented 4S pack, **not universal safety settings**. Read [configuration and register reference](docs/CONFIGURATION.md) before making changes.
 
 The firmware uses `logger.level: WARN`, `jbd_bms.update_interval: 5s` and `jbd_bms.rx_timeout: 300ms`. These defaults were reported to improve UART reliability in the tested setup; results may vary by wiring and hardware.
+
+## Say thanks
+
+If this project has been useful to you and you'd simply like to say thanks to the author, the optional details are listed in [THANKS.md](THANKS.md). The project remains free and open source for everyone.
 
 ## License and credits
 
