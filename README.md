@@ -42,7 +42,7 @@ The tested **4S4P LiFePO₄ battery pack** uses a JBD BMS, an ESP32-C3 Zero powe
 
 | Assembled battery pack | BMS and controller wiring |
 |:--:|:--:|
-| <a href="screenshots/Hardware-Side.jpg"><img src="screenshots/Hardware-Side.jpg" alt="Angled view of the assembled LiFePO4 battery pack" width="320"></a> | <a href="screenshots/Hardware-Front.jpg"><img src="screenshots/Hardware-Front.jpg" alt="Close view of the JBD BMS, ESP32 and connected wiring" width="320"></a> |
+| <a href="screenshots/Hardware-Side-New.jpg"><img src="screenshots/Hardware-Side-New.jpg" alt="Angled view of the assembled LiFePO4 battery pack" width="320"></a> | <a href="screenshots/Hardware-Front.jpg"><img src="screenshots/Hardware-Front.jpg" alt="Close view of the JBD BMS, ESP32 and connected wiring" width="320"></a> |
 
 ## Installation
 
