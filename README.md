@@ -54,7 +54,7 @@ These settings are applied to **both** firmware language variants. They reduce l
 5. Import one dashboard as a **complete raw Home Assistant dashboard configuration**. Both dashboard variants use identical entity IDs and may be switched without changing firmware.
 6. Verify telemetry and press **Read All 10 EEPROM Parameters** in the EEPROM tab. After a restart, re-read before trusting the comparison.
 
-> To take fully English screenshots, use `jbd-dashboard-en.yaml`. Profile status strings originate in the firmware; **flash `jbd-bms-en.yaml` only if you also want these dynamic messages in English**. Both firmware variants expose the same names and functionality, so the dashboards do not require relinking.
+> Language support: English and Ukrainian Home Assistant dashboards are available. Matching firmware variants provide localized status messages. Both variants use identical entity IDs and functionality.
 
 ### Secrets example
 
