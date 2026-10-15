@@ -15,9 +15,22 @@
 <details>
 <summary>Інші екрани: налаштування, захист, графіки</summary>
 
-| Налаштування | Захист | Графіки |
-|:--:|:--:|
-| <a href="screenshots/Settings.png"><img src="screenshots/Settings.png" alt="Налаштування" width="225"></a> | <a href="screenshots/Protection.png"><img src="screenshots/Protection.png" alt="Захист" width="225"></a> | <a href="screenshots/Charts.png"><img src="screenshots/Charts.png" alt="Графіки" width="225"></a> |
+<table>
+  <thead>
+    <tr>
+      <th align="center">Налаштування</th>
+      <th align="center">Захист</th>
+      <th align="center">Графіки</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><a href="screenshots/Settings.png"><img src="screenshots/Settings.png" alt="Налаштування" width="225"></a></td>
+      <td align="center"><a href="screenshots/Protection.png"><img src="screenshots/Protection.png" alt="Захист" width="225"></a></td>
+      <td align="center"><a href="screenshots/Charts.png"><img src="screenshots/Charts.png" alt="Графіки" width="225"></a></td>
+    </tr>
+  </tbody>
+</table>
 
 </details>
 
