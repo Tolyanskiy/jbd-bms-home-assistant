@@ -65,4 +65,4 @@ The firmware uses `logger.level: WARN`, `jbd_bms.update_interval: 5s` and `jbd_b
 
 The original materials in this repository are distributed under the [MIT License](LICENSE). This configuration depends on [syssi/esphome-jbd-bms](https://github.com/syssi/esphome-jbd-bms) (Apache-2.0); its source is not bundled. The upstream component is currently referenced at `@main`; pin a tested commit for reproducible deployments.
 
-Bug reports and pull requests are welcome. See [Contributing](CONTRIBUTING.md).
+Bug reports and pull requests are welcome. See [Contributing](CONTRIBUTING.md) .
